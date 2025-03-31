@@ -21,40 +21,49 @@
 //
 //=////////////////////////////////////////////////////////////////////////=//
 //
-// The cell for a REB_VECTOR points to a "pairing"--which is two value cells
-// stored in an optimized format that fits inside one REBSER node.  This is
+// The cell for a VECTOR! points to a "Pairing"--which is two value cells
+// stored in an optimized format that fits inside one Stub-Sized slot.  This is
 // a relatively light allocation, which allows the vector's properties
 // (bit width, signedness, integral-ness) to be stored in addition to a
-// BINARY! of the vector's bytes.
+// BLOB! of the vector's bytes.
+//
+// The reason that the Stub.link and Stub.misc fields etc. aren't used on a
+// FLAVOR_BINARY Stub to store the extra information is because you're able
+// to alias BLOB! data as VECTOR!.  That arbitrary data may already use the
+// Stub.link and Stub.misc for other things.
 //
 //=//// NOTES /////////////////////////////////////////////////////////////=//
 //
 // * See %extensions/vector/README.md
 //
 
-extern REBTYP *EG_Vector_Type;
+typedef Pairing Vector;
 
-#define VAL_VECTOR_BINARY(v) \
-    VAL(VAL_NODE1(v))  // pairing[0]
+INLINE Vector* VAL_VECTOR(const Cell* v) {
+    assert(Is_Vector(v));
+    return cast(Pairing*, CELL_NODE1(v));
+}
+
+#define VAL_VECTOR_BLOB(v) \
+    Pairing_First(VAL_VECTOR(v))
 
 #define VAL_VECTOR_SIGN_INTEGRAL_WIDE(v) \
-    PAIRING_KEY(VAL(VAL_NODE1(v)))  // pairing[1]
+    Pairing_Second(VAL_VECTOR(v))
 
 #define VAL_VECTOR_SIGN(v) \
-    PAYLOAD(Any, VAL_VECTOR_SIGN_INTEGRAL_WIDE(v)).first.flag
+    VAL_VECTOR_SIGN_INTEGRAL_WIDE(v)->payload.split.one.bit
 
-inline static bool VAL_VECTOR_INTEGRAL(noquote(Cell(const*)) v) {
-    assert(CELL_CUSTOM_TYPE(v) == EG_Vector_Type);
-    REBVAL *siw = VAL_VECTOR_SIGN_INTEGRAL_WIDE(v);
-    if (PAYLOAD(Any, siw).second.flag != 0)
+INLINE bool VAL_VECTOR_INTEGRAL(const Cell* v) {
+    Element* siw = VAL_VECTOR_SIGN_INTEGRAL_WIDE(v);
+    if (siw->payload.split.two.bit != 0)
         return true;
 
     assert(VAL_VECTOR_SIGN(v));
     return false;
 }
 
-inline static Byte VAL_VECTOR_WIDE(noquote(Cell(const*)) v) {  // "wide" REBSER term
-    int32_t wide = EXTRA(Any, VAL_VECTOR_SIGN_INTEGRAL_WIDE(v)).i32;
+INLINE Byte VAL_VECTOR_WIDE(const Cell* v) {  // "wide" Flex term
+    int32_t wide = VAL_VECTOR_SIGN_INTEGRAL_WIDE(v)->extra.i32;
     assert(wide == 1 or wide == 2 or wide == 3 or wide == 4);
     return wide;
 }
@@ -62,52 +71,49 @@ inline static Byte VAL_VECTOR_WIDE(noquote(Cell(const*)) v) {  // "wide" REBSER 
 #define VAL_VECTOR_BITSIZE(v) \
     (VAL_VECTOR_WIDE(v) * 8)
 
-inline static Byte* VAL_VECTOR_HEAD(noquote(Cell(const*)) v) {
-    assert(CELL_CUSTOM_TYPE(v) == EG_Vector_Type);
-    REBVAL *binary = VAL(VAL_NODE1(v));
-    return BIN_HEAD(VAL_BINARY_ENSURE_MUTABLE(binary));
+inline static Byte* VAL_VECTOR_HEAD(const Cell* v) {
+    Element* blob = VAL_VECTOR_BLOB(v);
+    return Binary_Head(Cell_Binary_Ensure_Mutable(blob));
 }
 
-inline static REBLEN VAL_VECTOR_LEN_AT(noquote(Cell(const*)) v) {
-    assert(CELL_CUSTOM_TYPE(v) == EG_Vector_Type);
-    return VAL_LEN_HEAD(VAL_VECTOR_BINARY(v)) / VAL_VECTOR_WIDE(v);
+inline static REBLEN VAL_VECTOR_LEN_AT(const Cell* v) {
+    return Cell_Series_Len_Head(VAL_VECTOR_BLOB(v)) / VAL_VECTOR_WIDE(v);
 }
 
 #define VAL_VECTOR_INDEX(v) 0  // !!! Index not currently supported
 #define VAL_VECTOR_LEN_HEAD(v) VAL_VECTOR_LEN_AT(v)
 
-inline static REBVAL *Init_Vector(
-    Cell(*) out,
-    Binary(*) bin,
+inline static Element* Init_Vector(
+    Sink(Element) out,
+    Binary* bin,
     bool sign,
     bool integral,
     Byte bitsize
 ){
-    RESET_CUSTOM_CELL(out, EG_Vector_Type, CELL_FLAG_FIRST_IS_NODE);
+    Pairing* paired = Alloc_Pairing(NODE_FLAG_MANAGED);
 
-    REBVAL *paired = Alloc_Pairing();
+    assert(Binary_Len(bin) % (bitsize / 8) == 0);
+    Init_Blob(Pairing_First(paired), bin);
 
-    Init_Binary(paired, bin);
-    assert(BIN_LEN(bin) % (bitsize / 8) == 0);
-
-    REBVAL *siw = PAIRING_KEY(paired);
-    Reset_Unquoted_Header_Untracked(TRACK(siw), CELL_MASK_BYTES);
+    Element* siw = Pairing_Second(paired);
+    Reset_Extended_Cell_Header_Noquote(
+        siw,
+        EXTENDED_HEART(Is_Vector),
+        CELL_FLAG_DONT_MARK_NODE1  // data just a flag, no GC marking
+            | CELL_FLAG_DONT_MARK_NODE2  // also a flag, no GC marking
+    );
+    siw->payload.split.one.bit = sign;
+    siw->payload.split.two.bit = integral;
     assert(bitsize == 8 or bitsize == 16 or bitsize == 32 or bitsize == 64);
-    PAYLOAD(Any, siw).first.flag = sign;
-    PAYLOAD(Any, siw).second.flag = integral;
-    EXTRA(Any, siw).i32 = bitsize / 8;  // e.g. VAL_VECTOR_WIDE()
+    siw->extra.i32 = bitsize / 8;  // e.g. VAL_VECTOR_WIDE()
 
-    Manage_Pairing(paired);
-    INIT_VAL_NODE1(out, paired);
-    return cast(REBVAL*, out);
+    Reset_Extended_Cell_Header_Noquote(
+        out,
+        EXTENDED_HEART(Is_Vector),
+        (not CELL_FLAG_DONT_MARK_NODE1)  // vector pairing needs mark
+            | CELL_FLAG_DONT_MARK_NODE2  // index shouldn't be marked
+    );
+    CELL_NODE1(out) = paired;
+
+    return out;
 }
-
-
-// !!! These hooks allow the REB_VECTOR cell type to dispatch to code in the
-// VECTOR! extension if it is loaded.
-//
-extern REBINT CT_Vector(noquote(Cell(const*)) a, noquote(Cell(const*)) b, bool strict);
-extern Bounce MAKE_Vector(Frame(*) frame_, enum Reb_Kind kind, option(const REBVAL*) parent, const REBVAL *arg);
-extern Bounce TO_Vector(Frame(*) frame_, enum Reb_Kind kind, const REBVAL *arg);
-extern void MF_Vector(REB_MOLD *mo, noquote(Cell(const*)) v, bool form);
-extern REBTYPE(Vector);

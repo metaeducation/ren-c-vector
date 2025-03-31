@@ -1,16 +1,8 @@
-REBOL []
-
-name: 'Vector
-source: %vector/mod-vector.c
-depends: [
-    %vector/t-vector.c
+REBOL [
+    Name: Vector
+    Notes: "See %extensions/README.md for the format and fields of this file"
 ]
-includes: [%prep/extensions/vector]
-definitions: []
-cflags: []
-searches: []
-ldflags: []
 
-libraries: []
+use-librebol: 'no
 
-options: []
+sources: %mod-vector.c
