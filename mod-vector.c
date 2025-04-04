@@ -24,6 +24,7 @@
 // See %extensions/vector/README.md
 //
 
+#include "sys-core.h"
 #include "tmp-mod-vector.h"
 
 #include "sys-vector.h"
@@ -360,25 +361,17 @@ IMPLEMENT_GENERIC(SHUFFLE, Is_Vector)
 }
 
 
-//
-//  export make-vector: native [
-//
-//  "Temporary substitute for MAKE VECTOR! until MAKE compatibility works"
-//
-//      return: [element?]  ; VECTOR! type not ready yet
-//      spec [integer! decimal! block!]
-//  ]
-//
-DECLARE_NATIVE(MAKE_VECTOR)
+IMPLEMENT_GENERIC(MAKE, Is_Vector)
 {
-    INCLUDE_PARAMS_OF_MAKE_VECTOR;
+    INCLUDE_PARAMS_OF_MAKE;
+    UNUSED(ARG(TYPE));
 
-    Element* spec = Element_ARG(SPEC);
+    Element* spec = Element_ARG(DEF);
 
     if (Is_Integer(spec) and not Is_Decimal(spec)) {
         REBINT len = Int32s(spec, 0);
         if (len < 0)
-            return FAIL(PARAM(SPEC));
+            return FAIL(PARAM(DEF));
 
         Byte bitsize = 32;
         REBLEN num_bytes = (len * bitsize) / 8;
@@ -392,7 +385,7 @@ DECLARE_NATIVE(MAKE_VECTOR)
     }
 
     if (not Is_Block(spec))
-        return FAIL(PARAM(SPEC));
+        return FAIL(PARAM(DEF));
 
   //=//// MAKE VECTOR FROM A BLOCK! SPEC //////////////////////////////////=//
 
@@ -682,13 +675,10 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
 }
 
 
-static RebolValue* g_unsigned = nullptr;
-
-
 //
 //  startup*: native [
 //
-//  "Add behaviors for VECTOR!"
+//  "Startup VECTOR! Extension"
 //
 //      return: [~]
 //  ]
@@ -697,12 +687,6 @@ DECLARE_NATIVE(STARTUP_P)
 {
     INCLUDE_PARAMS_OF_STARTUP_P;
 
-    g_unsigned = Register_Symbol("unsigned", EXT_SYM_UNSIGNED);
-
-    EXTENDED_HEART(Is_Vector) = Register_Datatype("vector!");
-
-    Register_Generics(EXTENDED_GENERICS());
-
     return NOTHING;
 }
 
@@ -710,7 +694,7 @@ DECLARE_NATIVE(STARTUP_P)
 //
 //  shutdown*: native [
 //
-//  "Remove behaviors for VECTOR!"
+//  "Shutdown VECTOR! Extension"
 //
 //      return: [~]
 //  ]
@@ -718,12 +702,6 @@ DECLARE_NATIVE(STARTUP_P)
 DECLARE_NATIVE(SHUTDOWN_P)
 {
     INCLUDE_PARAMS_OF_SHUTDOWN_P;
-
-    Unregister_Generics(EXTENDED_GENERICS());
-
-    Unregister_Datatype(EXTENDED_HEART(Is_Vector));
-
-    Unregister_Symbol(g_unsigned, EXT_SYM_UNSIGNED);
 
     return NOTHING;
 }

@@ -96,10 +96,10 @@ inline static Element* Init_Vector(
     Init_Blob(Pairing_First(paired), bin);
 
     Element* siw = Pairing_Second(paired);
-    Reset_Extended_Cell_Header_Noquote(
+    Reset_Cell_Header_Noquote(
         siw,
-        EXTENDED_HEART(Is_Vector),
-        CELL_FLAG_DONT_MARK_NODE1  // data just a flag, no GC marking
+        FLAG_HEART(HANDLE)
+            | CELL_FLAG_DONT_MARK_NODE1  // data just a flag, no GC marking
             | CELL_FLAG_DONT_MARK_NODE2  // also a flag, no GC marking
     );
     siw->payload.split.one.bit = sign;
@@ -109,7 +109,7 @@ inline static Element* Init_Vector(
 
     Reset_Extended_Cell_Header_Noquote(
         out,
-        EXTENDED_HEART(Is_Vector),
+        EXTRA_HEART_VECTOR,
         (not CELL_FLAG_DONT_MARK_NODE1)  // vector pairing needs mark
             | CELL_FLAG_DONT_MARK_NODE2  // index shouldn't be marked
     );
