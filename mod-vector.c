@@ -296,7 +296,7 @@ IMPLEMENT_GENERIC(EQUAL_Q, Is_Vector)
 
     Element* v1 = Element_ARG(VALUE1);
     Element* v2 = Element_ARG(VALUE2);
-    UNUSED(ARG(STRICT));
+    UNUSED(Bool_ARG(RELAX));
 
     bool non_integer1 = not VAL_VECTOR_INTEGRAL(v1);
     bool non_integer2 = not VAL_VECTOR_INTEGRAL(v2);
