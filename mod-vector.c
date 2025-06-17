@@ -502,34 +502,6 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
 }
 
 
-IMPLEMENT_GENERIC(PICK, Is_Vector) {
-    INCLUDE_PARAMS_OF_PICK;
-
-    Element* vec = Element_ARG(LOCATION);
-    Element* picker = Element_ARG(PICKER);
-
-    REBINT n;
-    if (Is_Integer(picker) or Is_Decimal(picker))  // #2312
-        n = Int32(picker);
-    else
-        return FAIL(PARAM(PICKER));
-
-    if (n == 0)  // Rebol2/Red convention, 0 is bad pick
-        return RAISE(Error_Out_Of_Range(picker));
-
-    if (n < 0)
-        ++n;  // Rebol/Red convention, picking -1 from tail gives last item
-
-    n += VAL_VECTOR_INDEX(vec);
-
-    if (n <= 0 or cast(REBLEN, n) > VAL_VECTOR_LEN_AT(vec))
-        return nullptr;  // out of range of vector data
-
-    Get_Vector_At(OUT, vec, n - 1);
-    return OUT;
-}
-
-
 // Because the vector uses Alloc_Pairing() for its 2-cells-of value, it has
 // to defer to the binary itself for locked status (also since it can co-opt
 // a BINARY! as its backing store, it has to honor the protection status of
@@ -538,17 +510,15 @@ IMPLEMENT_GENERIC(PICK, Is_Vector) {
 // !!! How does this tie into CONST-ness?  How should aggregate types handle
 // their overall constness vs. that of their components?
 //
-IMPLEMENT_GENERIC(POKE, Is_Vector) {
-    INCLUDE_PARAMS_OF_POKE;
+IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
+{
+    INCLUDE_PARAMS_OF_TWEAK_P;
 
     Element* vec = Element_ARG(LOCATION);
-    Element* picker = Element_ARG(PICKER);
-    Value* poke = ARG(VALUE);
-
-    Ensure_Mutable(VAL_VECTOR_BLOB(vec));
+    Value* picker = Element_ARG(PICKER);
 
     REBINT n;
-    if (Is_Integer(picker) or Is_Decimal(picker)) // #2312
+    if (Is_Integer(picker) or Is_Decimal(picker))  // #2312
         n = Int32(picker);
     else
         return PANIC(PARAM(PICKER));
@@ -557,19 +527,45 @@ IMPLEMENT_GENERIC(POKE, Is_Vector) {
         return FAIL(Error_Out_Of_Range(picker));
 
     if (n < 0)
-        ++n;  // Rebol2/Red convention, poking -1 from tail sets last item
+        ++n;  // Rebol/Red convention, picking -1 from tail gives last item
 
-    n += VAL_VECTOR_INDEX(value);
+    n += VAL_VECTOR_INDEX(vec);
 
     if (n <= 0 or cast(REBLEN, n) > VAL_VECTOR_LEN_AT(vec))
-        return FAIL(Error_Out_Of_Range(picker));
+        return DUAL_SIGNAL_NULL_ABSENT;  // out of range of vector data
 
-    Option(Error*) e = Trap_Set_Vector_At(vec, n - 1, cast(Element*, poke));
+    Value* dual = ARG(DUAL);
+    if (Not_Lifted(dual)) {
+        if (Is_Dual_Nulled_Pick_Signal(dual))
+            goto handle_pick;
+
+        return PANIC(Error_Bad_Poke_Dual_Raw(dual));
+    }
+
+    goto handle_poke;
+
+  handle_pick: { /////////////////////////////////////////////////////////////
+
+    Get_Vector_At(OUT, vec, n - 1);
+    return DUAL_LIFTED(OUT);
+
+} handle_poke: {
+
+    Unliftify_Known_Stable(dual);
+
+    if (Is_Antiform(dual))
+        return PANIC(Error_Bad_Antiform(dual));
+
+    Element* poke = Known_Element(dual);
+
+    Ensure_Mutable(VAL_VECTOR_BLOB(vec));
+
+    Option(Error*) e = Trap_Set_Vector_At(vec, n - 1, poke);
     if (e)
         return PANIC(unwrap e);
 
-    return nullptr;  // all data modified through stub, no writeback needed
-}
+    return NO_WRITEBACK_NEEDED;  // all data modified through stub
+}}
 
 
 IMPLEMENT_GENERIC(LENGTH_OF, Is_Vector)
