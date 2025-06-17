@@ -136,11 +136,11 @@ static Option(Error*) Trap_Set_Vector_At(
             // Can't be "out of range", just loses precision
             REBD32 d = cast(REBD32, d64);
             memcpy(cast(REBD32*, data) + n, &d, sizeof(d));
-            return nullptr; }
+            return SUCCESS; }
 
           case 64: {
             memcpy(cast(REBDEC*, data) + n, &d64, sizeof(d64));
-            return nullptr; }
+            return SUCCESS; }
         }
     }
     else {
@@ -159,26 +159,26 @@ static Option(Error*) Trap_Set_Vector_At(
                     goto out_of_range;
                 int8_t i = cast(int8_t, i64);
                 memcpy(cast(int8_t*, data) + n, &i, sizeof(i));
-                return nullptr; }
+                return SUCCESS; }
 
               case 16: {
                 if (i64 < INT16_MIN or i64 > INT16_MAX)
                     goto out_of_range;
                 int16_t i = cast(int16_t, i64);
                 memcpy(cast(int16_t*, data) + n, &i, sizeof(i));
-                return nullptr; }
+                return SUCCESS; }
 
               case 32: {
                 if (i64 < INT32_MIN or i64 > INT32_MAX)
                     goto out_of_range;
                 int32_t i = cast(int32_t, i64);
                 memcpy(cast(int32_t*, data) + n, &i, sizeof(i));
-                return nullptr; }
+                return SUCCESS; }
 
               case 64: {
                 // type uses full range
                 memcpy(cast(int64_t*, data) + n, &i64, sizeof(i64));
-                return nullptr; }
+                return SUCCESS; }
             }
         }
         else {  // unsigned
@@ -191,26 +191,26 @@ static Option(Error*) Trap_Set_Vector_At(
                     goto out_of_range;
                 uint8_t u = cast(uint8_t, i64);
                 memcpy(cast(uint8_t*, data) + n, &u, sizeof(u));
-                return nullptr; }
+                return SUCCESS; }
 
               case 16: {
                 if (i64 > UINT16_MAX)
                     goto out_of_range;
                 uint16_t u = cast(uint16_t, i64);
                 memcpy(cast(uint16_t*, data) + n, &u, sizeof(u));
-                return nullptr; }
+                return SUCCESS; }
 
               case 32: {
                 if (i64 > UINT32_MAX)
                     goto out_of_range;
                 uint32_t u = cast(uint32_t, i64);
                 memcpy(cast(uint32_t*, data) + n, &u, sizeof(u));
-                return nullptr; }
+                return SUCCESS; }
 
               case 64: {
                 uint32_t u = cast(uint32_t, i64);
                 memcpy(cast(uint64_t*, data) + n, &u, sizeof(u));
-                return nullptr; }
+                return SUCCESS; }
             }
         }
     }
@@ -257,7 +257,7 @@ static Option(Error*) Trap_Set_Vector_Row(
         }
     }
 
-    return nullptr;
+    return SUCCESS;
 }
 
 
