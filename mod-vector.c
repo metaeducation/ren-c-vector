@@ -218,8 +218,8 @@ static Option(Error*) Trap_Set_Vector_At(
   out_of_range:
 
     return Cell_Error(rebValue("make warning! [",
-        set, "-{out of range for}- unspaced [", rebI(bitsize), "{-bit}]",
-            rebT(sign ? "signed" : "unsigned"), "-{VECTOR! type}-",
+        set, "-[out of range for]- unspaced [", rebI(bitsize), "{-bit}]",
+            rebT(sign ? "signed" : "unsigned"), "-[VECTOR! type]-",
     "]"));
 }
 
