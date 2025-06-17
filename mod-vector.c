@@ -581,6 +581,15 @@ IMPLEMENT_GENERIC(LENGTH_OF, Is_Vector)
 }
 
 
+IMPLEMENT_GENERIC(ADDRESS_OF, Is_Vector)
+{
+    INCLUDE_PARAMS_OF_ADDRESS_OF;
+
+    Element* vec = Element_ARG(ELEMENT);
+    return Init_Integer(OUT, i_cast(intptr_t, VAL_VECTOR_HEAD(vec)));
+}
+
+
 IMPLEMENT_GENERIC(COPY, Is_Vector) {
     INCLUDE_PARAMS_OF_COPY;
 
