@@ -9,4 +9,4 @@ Rebol [
 
 use-librebol: 'no
 
-sources: %mod-vector.c
+sources: [mod-vector.c]
