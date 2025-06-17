@@ -1,11 +1,11 @@
-REBOL [
-    Title: "Vector Extension"
-    Name: Vector
-    Type: Module
-    Version: 1.0.0
-    License: {Apache 2.0}
+Rebol [
+    title: "Vector Extension"
+    name: Vector
+    type: module
+    version: 1.0.0
+    license: {Apache 2.0}
 
-    Notes: {
+    notes: {
         See %extensions/vector/README.md
     }
 ]
