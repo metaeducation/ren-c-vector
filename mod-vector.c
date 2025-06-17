@@ -630,7 +630,7 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
 
     if (not form) {
         Type type = integral ? TYPE_INTEGER : TYPE_DECIMAL;
-        Append_Ascii(mo->string, "#[vector! [");
+        Begin_Non_Lexical_Mold(mo, vec);
 
         // `<(opt) unsigned> kind bits len [`
         //
