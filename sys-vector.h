@@ -41,7 +41,7 @@ typedef Pairing Vector;
 
 INLINE Vector* VAL_VECTOR(const Cell* v) {
     assert(Is_Vector(v));
-    return cast(Pairing*, CELL_NODE1(v));
+    return cast(Pairing*, CELL_PAYLOAD_1(v));
 }
 
 #define VAL_VECTOR_BLOB(v) \
@@ -90,7 +90,7 @@ inline static Element* Init_Vector(
     bool integral,
     Byte bitsize
 ){
-    Pairing* paired = Alloc_Pairing(NODE_FLAG_MANAGED);
+    Pairing* paired = Alloc_Pairing(BASE_FLAG_MANAGED);
 
     assert(Binary_Len(bin) % (bitsize / 8) == 0);
     Init_Blob(Pairing_First(paired), bin);
@@ -98,9 +98,9 @@ inline static Element* Init_Vector(
     Element* siw = Pairing_Second(paired);
     Reset_Cell_Header_Noquote(
         siw,
-        FLAG_HEART(HANDLE)
-            | CELL_FLAG_DONT_MARK_NODE1  // data just a flag, no GC marking
-            | CELL_FLAG_DONT_MARK_NODE2  // also a flag, no GC marking
+        FLAG_HEART(TYPE_HANDLE)
+            | CELL_FLAG_DONT_MARK_PAYLOAD_1  // data just a flag, no GC marking
+            | CELL_FLAG_DONT_MARK_PAYLOAD_2  // also a flag, no GC marking
     );
     siw->payload.split.one.bit = sign;
     siw->payload.split.two.bit = integral;
@@ -110,10 +110,10 @@ inline static Element* Init_Vector(
     Reset_Extended_Cell_Header_Noquote(
         out,
         EXTRA_HEART_VECTOR,
-        (not CELL_FLAG_DONT_MARK_NODE1)  // vector pairing needs mark
-            | CELL_FLAG_DONT_MARK_NODE2  // index shouldn't be marked
+        (not CELL_FLAG_DONT_MARK_PAYLOAD_1)  // vector pairing needs mark
+            | CELL_FLAG_DONT_MARK_PAYLOAD_2  // index shouldn't be marked
     );
-    CELL_NODE1(out) = paired;
+    CELL_PAYLOAD_1(out) = paired;
 
     return out;
 }

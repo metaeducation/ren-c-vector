@@ -595,7 +595,7 @@ IMPLEMENT_GENERIC(COPY, Is_Vector) {
         return PANIC(Error_Bad_Refines_Raw());
 
     Binary* bin = u_cast(Binary*, Copy_Flex_Core(
-        NODE_FLAG_MANAGED,
+        BASE_FLAG_MANAGED,
         Cell_Binary(VAL_VECTOR_BLOB(vec))
     ));
 
