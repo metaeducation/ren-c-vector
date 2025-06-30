@@ -631,13 +631,13 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
         // `<(opt) unsigned> kind bits len [`
         //
         if (not sign)
-            Append_Ascii(mo->string, "unsigned ");
-        Append_Spelling(mo->string, Canon_Symbol(Symbol_Id_From_Type(type)));
-        Append_Codepoint(mo->string, ' ');
-        Append_Int(mo->string, bits);
-        Append_Codepoint(mo->string, ' ');
-        Append_Int(mo->string, len);
-        Append_Ascii(mo->string, " [");
+            Append_Ascii(mo->strand, "unsigned ");
+        Append_Spelling(mo->strand, Canon_Symbol(Symbol_Id_From_Type(type)));
+        Append_Codepoint(mo->strand, ' ');
+        Append_Int(mo->strand, bits);
+        Append_Codepoint(mo->strand, ' ');
+        Append_Int(mo->strand, len);
+        Append_Ascii(mo->strand, " [");
         if (len != 0)
             New_Indented_Line(mo);
     }
@@ -654,14 +654,14 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
             l = Emit_Integer(buf, VAL_INT64(temp));
         else
             l = Emit_Decimal(buf, VAL_DECIMAL(temp), 0, '.', mo->digits);
-        Append_Ascii_Len(mo->string, s_cast(buf), l);
+        Append_Ascii_Len(mo->strand, s_cast(buf), l);
 
         if ((++c > 7) && (n + 1 < VAL_VECTOR_LEN_AT(vec))) {
             New_Indented_Line(mo);
             c = 0;
         }
         else
-            Append_Codepoint(mo->string, ' ');
+            Append_Codepoint(mo->strand, ' ');
     }
 
     // !!! There was some handling here for trimming spaces, should be done
@@ -671,9 +671,9 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
         if (len)
             New_Indented_Line(mo);
 
-        Append_Codepoint(mo->string, ']');
+        Append_Codepoint(mo->strand, ']');
 
-        Append_Codepoint(mo->string, ']');
+        Append_Codepoint(mo->strand, ']');
     }
 
     return TRIPWIRE;
