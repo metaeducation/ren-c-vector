@@ -301,7 +301,7 @@ IMPLEMENT_GENERIC(EQUAL_Q, Is_Vector)
     bool non_integer1 = not VAL_VECTOR_INTEGRAL(v1);
     bool non_integer2 = not VAL_VECTOR_INTEGRAL(v2);
     if (non_integer1 != non_integer2)
-        return FAIL(Error_Not_Same_Type_Raw());  // !!! is thisnecessary?
+        return fail (Error_Not_Same_Type_Raw());  // !!! is thisnecessary?
 
     REBLEN l1 = VAL_VECTOR_LEN_AT(v1);
     REBLEN l2 = VAL_VECTOR_LEN_AT(v2);
@@ -371,7 +371,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
     if (Is_Integer(spec) and not Is_Decimal(spec)) {
         REBINT len = Int32s(spec, 0);
         if (len < 0)
-            return PANIC(PARAM(DEF));
+            panic (PARAM(DEF));
 
         Byte bitsize = 32;
         REBLEN num_bytes = (len * bitsize) / 8;
@@ -385,7 +385,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
     }
 
     if (not Is_Block(spec))
-        return PANIC(PARAM(DEF));
+        panic (PARAM(DEF));
 
   //=//// MAKE VECTOR FROM A BLOCK! SPEC //////////////////////////////////=//
 
@@ -423,31 +423,31 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
 
     bool integral = false;  // default to integer, not floating point
     if (item == tail or not Is_Word(item))
-        return PANIC(item);
+        panic (item);
 
     if (Word_Id(item) == SYM_INTEGER_X)  // e_X_clamation (INTEGER!)
         integral = true;
     else if (Word_Id(item) == SYM_DECIMAL_X) {  // (DECIMAL!)
         integral = false;
         if (not sign)
-            return PANIC("VECTOR!: C doesn't have unsigned floating points");
+            panic ("VECTOR!: C doesn't have unsigned floating points");
     }
     else
-        return PANIC("VECTOR!: integer! or decimal! required");
+        panic ("VECTOR!: integer! or decimal! required");
 
     ++item;
 
     Byte bitsize;
     if (item == tail or not Is_Integer(item))
-        return PANIC("VECTOR!: bit size required, no defaulting");
+        panic ("VECTOR!: bit size required, no defaulting");
 
     REBLEN i = Int32(item);
     if (i == 8 or i == 16) {
         if (not integral)
-            return PANIC("VECTOR!: C doesn't have 8 or 16 bit floating points");
+            panic ("VECTOR!: C doesn't have 8 or 16 bit floating points");
     }
     else if (i != 32 and i != 64)
-        return PANIC("VECTOR!: C floating points only 32 or 64 bit");
+        panic ("VECTOR!: C floating points only 32 or 64 bit");
 
     bitsize = i;
     ++item;
@@ -455,7 +455,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
     Byte len = 1;  // !!! default len to 1...why?
     if (item != tail and Is_Integer(item)) {
         if (Int32(item) < 0)
-            return PANIC("VECTOR!: length must be positive");
+            panic ("VECTOR!: length must be positive");
         len = Int32(item);
         ++item;
     }
@@ -466,7 +466,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
     if (item != tail and (Is_Block(item) or Is_Blob(item))) {
         REBLEN init_len = Series_Len_At(item);
         if (Is_Blob(item) and integral)  // !!! What was this about?
-            return PANIC("VECTOR!: BLOB! can't be integral (?)");
+            panic ("VECTOR!: BLOB! can't be integral (?)");
         if (init_len > len)  // !!! Expands without error, is this good?
             len = init_len;
         iblk = item;
@@ -482,7 +482,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
     }
 
     if (item != tail)
-        return PANIC("Too many arguments in MAKE VECTOR! block");
+        panic ("Too many arguments in MAKE VECTOR! block");
 
     REBLEN num_bytes = len * (bitsize / 8);
     Binary* bin = Make_Binary(num_bytes);
@@ -495,7 +495,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
     if (iblk != nullptr) {
         Option(Error*) e = Trap_Set_Vector_Row(OUT, iblk);
         if (e)
-            return PANIC(unwrap e);
+            panic (unwrap e);
     }
 
     return OUT;
@@ -521,10 +521,10 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
     if (Is_Integer(picker) or Is_Decimal(picker))  // #2312
         n = Int32(picker);
     else
-        return PANIC(PARAM(PICKER));
+        panic (PARAM(PICKER));
 
     if (n == 0)  // Rebol2/Red convention, 0 is bad pick
-        return FAIL(Error_Out_Of_Range(picker));
+        return fail (Error_Out_Of_Range(picker));
 
     if (n < 0)
         ++n;  // Rebol/Red convention, picking -1 from tail gives last item
@@ -539,7 +539,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
         if (Is_Dual_Nulled_Pick_Signal(dual))
             goto handle_pick;
 
-        return PANIC(Error_Bad_Poke_Dual_Raw(dual));
+        panic (Error_Bad_Poke_Dual_Raw(dual));
     }
 
     goto handle_poke;
@@ -554,7 +554,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
     Unliftify_Known_Stable(dual);
 
     if (Is_Antiform(dual))
-        return PANIC(Error_Bad_Antiform(dual));
+        panic (Error_Bad_Antiform(dual));
 
     Element* poke = Known_Element(dual);
 
@@ -562,7 +562,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
 
     Option(Error*) e = Trap_Set_Vector_At(vec, n - 1, poke);
     if (e)
-        return PANIC(unwrap e);
+        panic (unwrap e);
 
     return NO_WRITEBACK_NEEDED;  // all data modified through stub
 }}
@@ -592,7 +592,7 @@ IMPLEMENT_GENERIC(COPY, Is_Vector) {
     Element* vec = Element_ARG(VALUE);
 
     if (Bool_ARG(PART) or Bool_ARG(DEEP))
-        return PANIC(Error_Bad_Refines_Raw());
+        panic (Error_Bad_Refines_Raw());
 
     Binary* bin = u_cast(Binary*, Copy_Flex_Core(
         BASE_FLAG_MANAGED,
