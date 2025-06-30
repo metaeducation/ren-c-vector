@@ -230,7 +230,7 @@ static Option(Error*) Trap_Set_Vector_Row(
 ){
     if (Is_Block(block_or_blob)) {
         const Element* tail;
-        const Element* at = Cell_List_At(&tail, block_or_blob);
+        const Element* at = List_At(&tail, block_or_blob);
 
         REBLEN n = 0;
         for (; at != tail; ++at, ++n) {
@@ -243,7 +243,7 @@ static Option(Error*) Trap_Set_Vector_Row(
         assert(Is_Blob(block_or_blob));
 
         Size size;
-        const Byte* data = Cell_Blob_Size_At(&size, block_or_blob);
+        const Byte* data = Blob_Size_At(&size, block_or_blob);
 
         DECLARE_ELEMENT (temp);
 
@@ -268,13 +268,13 @@ static Array* Vector_To_Array(const Element* vec)
 {
     USED(&Vector_To_Array);
 
-    REBLEN len = Cell_Series_Len_At(vec);
+    REBLEN len = Series_Len_At(vec);
     assert(len >= 0);
 
     Array* arr = Make_Source(len);
     Element* dest = Array_Head(arr);
     REBLEN n;
-    for (n = VAL_INDEX(vec); n < Cell_Series_Len_Head(vec); ++n, ++dest)
+    for (n = Series_Index(vec); n < Series_Len_Head(vec); ++n, ++dest)
         Get_Vector_At(dest, vec, n);
 
     Set_Flex_Len(arr, len);
@@ -410,12 +410,12 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
     //    0 for now.
 
     const Element* tail;
-    const Element* item = Cell_List_At(&tail, spec);
+    const Element* item = List_At(&tail, spec);
 
     bool sign = true;  // default to signed, not unsigned
     if (
         item != tail
-        and Is_Word(item) and Cell_Word_Id(item) == EXT_SYM_UNSIGNED
+        and Is_Word(item) and Word_Id(item) == EXT_SYM_UNSIGNED
     ){
         sign = false;
         ++item;
@@ -425,9 +425,9 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
     if (item == tail or not Is_Word(item))
         return PANIC(item);
 
-    if (Cell_Word_Id(item) == SYM_INTEGER_X)  // e_X_clamation (INTEGER!)
+    if (Word_Id(item) == SYM_INTEGER_X)  // e_X_clamation (INTEGER!)
         integral = true;
-    else if (Cell_Word_Id(item) == SYM_DECIMAL_X) {  // (DECIMAL!)
+    else if (Word_Id(item) == SYM_DECIMAL_X) {  // (DECIMAL!)
         integral = false;
         if (not sign)
             return PANIC("VECTOR!: C doesn't have unsigned floating points");
@@ -464,7 +464,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
 
     const Element* iblk;
     if (item != tail and (Is_Block(item) or Is_Blob(item))) {
-        REBLEN init_len = Cell_Series_Len_At(item);
+        REBLEN init_len = Series_Len_At(item);
         if (Is_Blob(item) and integral)  // !!! What was this about?
             return PANIC("VECTOR!: BLOB! can't be integral (?)");
         if (init_len > len)  // !!! Expands without error, is this good?
@@ -515,7 +515,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
     INCLUDE_PARAMS_OF_TWEAK_P;
 
     Element* vec = Element_ARG(LOCATION);
-    Value* picker = Element_ARG(PICKER);
+    Value* picker = ARG(PICKER);
 
     REBINT n;
     if (Is_Integer(picker) or Is_Decimal(picker))  // #2312
@@ -691,6 +691,8 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
 DECLARE_NATIVE(STARTUP_P)
 {
     INCLUDE_PARAMS_OF_STARTUP_P;
+
+    UNUSED(Vector_To_Array);
 
     return TRIPWIRE;
 }

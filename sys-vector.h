@@ -77,7 +77,7 @@ inline static Byte* VAL_VECTOR_HEAD(const Cell* v) {
 }
 
 inline static REBLEN VAL_VECTOR_LEN_AT(const Cell* v) {
-    return Cell_Series_Len_Head(VAL_VECTOR_BLOB(v)) / VAL_VECTOR_WIDE(v);
+    return Series_Len_Head(VAL_VECTOR_BLOB(v)) / VAL_VECTOR_WIDE(v);
 }
 
 #define VAL_VECTOR_INDEX(v) 0  // !!! Index not currently supported
