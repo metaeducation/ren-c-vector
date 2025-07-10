@@ -594,7 +594,7 @@ IMPLEMENT_GENERIC(COPY, Is_Vector) {
     if (Bool_ARG(PART) or Bool_ARG(DEEP))
         panic (Error_Bad_Refines_Raw());
 
-    Binary* bin = u_cast(Binary*, Copy_Flex_Core(
+    Binary* bin = require (nocast Copy_Flex_Core(
         BASE_FLAG_MANAGED,
         Cell_Binary(VAL_VECTOR_BLOB(vec))
     ));
@@ -630,14 +630,15 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
 
         // `<(opt) unsigned> kind bits len [`
         //
-        if (not sign)
-            Append_Ascii(mo->strand, "unsigned ");
+        if (not sign) {
+            required (Append_Ascii(mo->strand, "unsigned "));
+        }
         Append_Spelling(mo->strand, Canon_Symbol(Symbol_Id_From_Type(type)));
         Append_Codepoint(mo->strand, ' ');
         Append_Int(mo->strand, bits);
         Append_Codepoint(mo->strand, ' ');
         Append_Int(mo->strand, len);
-        Append_Ascii(mo->strand, " [");
+        required (Append_Ascii(mo->strand, " ["));
         if (len != 0)
             New_Indented_Line(mo);
     }
@@ -654,7 +655,7 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
             l = Emit_Integer(buf, VAL_INT64(temp));
         else
             l = Emit_Decimal(buf, VAL_DECIMAL(temp), 0, '.', mo->digits);
-        Append_Ascii_Len(mo->strand, s_cast(buf), l);
+        required (Append_Ascii_Len(mo->strand, s_cast(buf), l));
 
         if ((++c > 7) && (n + 1 < VAL_VECTOR_LEN_AT(vec))) {
             New_Indented_Line(mo);
@@ -692,7 +693,7 @@ DECLARE_NATIVE(STARTUP_P)
 {
     INCLUDE_PARAMS_OF_STARTUP_P;
 
-    UNUSED(Vector_To_Array);
+    UNUSED(&Vector_To_Array);
 
     return TRIPWIRE;
 }
