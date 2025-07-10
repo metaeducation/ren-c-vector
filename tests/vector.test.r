@@ -1,4 +1,4 @@
-; %vector.test.reb
+; %vector.test.r
 
 (datatype? vector!)
 
