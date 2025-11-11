@@ -572,7 +572,7 @@ IMPLEMENT_GENERIC(LENGTH_OF, Is_Vector)
 {
     INCLUDE_PARAMS_OF_LENGTH_OF;
 
-    Element* vec = Element_ARG(ELEMENT);
+    Element* vec = Element_ARG(VALUE);
     return Init_Integer(OUT, VAL_VECTOR_LEN_AT(vec));
 }
 
@@ -581,7 +581,7 @@ IMPLEMENT_GENERIC(ADDRESS_OF, Is_Vector)
 {
     INCLUDE_PARAMS_OF_ADDRESS_OF;
 
-    Element* vec = Element_ARG(ELEMENT);
+    Element* vec = Element_ARG(VALUE);
     return Init_Integer(OUT, i_cast(intptr_t, VAL_VECTOR_HEAD(vec)));
 }
 
@@ -594,7 +594,8 @@ IMPLEMENT_GENERIC(COPY, Is_Vector) {
     if (Bool_ARG(PART) or Bool_ARG(DEEP))
         panic (Error_Bad_Refines_Raw());
 
-    Binary* bin = require (nocast Copy_Flex_Core(
+    require (
+      Binary* bin = u_downcast Copy_Flex_Core(
         BASE_FLAG_MANAGED,
         Cell_Binary(VAL_VECTOR_BLOB(vec))
     ));
@@ -613,7 +614,7 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
 {
     INCLUDE_PARAMS_OF_MOLDIFY;
 
-    Element* vec = Element_ARG(ELEMENT);
+    Element* vec = Element_ARG(VALUE);
     Molder* mo = Cell_Handle_Pointer(Molder, ARG(MOLDER));
     bool form = Bool_ARG(FORM);
 
@@ -631,14 +632,22 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
         // `<(opt) unsigned> kind bits len [`
         //
         if (not sign) {
-            required (Append_Ascii(mo->strand, "unsigned "));
+            require (
+              Append_Ascii(mo->strand, "unsigned ")
+            );
         }
         Append_Spelling(mo->strand, Canon_Symbol(Symbol_Id_From_Type(type)));
         Append_Codepoint(mo->strand, ' ');
-        Append_Int(mo->strand, bits);
+        require (
+          Append_Int(mo->strand, bits)
+        );
         Append_Codepoint(mo->strand, ' ');
-        Append_Int(mo->strand, len);
-        required (Append_Ascii(mo->strand, " ["));
+        require (
+          Append_Int(mo->strand, len)
+        );
+        require (
+          Append_Ascii(mo->strand, " [")
+        );
         if (len != 0)
             New_Indented_Line(mo);
     }
@@ -655,7 +664,9 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
             l = Emit_Integer(buf, VAL_INT64(temp));
         else
             l = Emit_Decimal(buf, VAL_DECIMAL(temp), 0, '.', mo->digits);
-        required (Append_Ascii_Len(mo->strand, s_cast(buf), l));
+        require (
+          Append_Ascii_Len(mo->strand, s_cast(buf), l)
+        );
 
         if ((++c > 7) && (n + 1 < VAL_VECTOR_LEN_AT(vec))) {
             New_Indented_Line(mo);
