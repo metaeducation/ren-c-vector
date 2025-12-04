@@ -688,7 +688,7 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
         Append_Codepoint(mo->strand, ']');
     }
 
-    return TRIPWIRE;
+    return TRASH;
 }
 
 
@@ -706,7 +706,7 @@ DECLARE_NATIVE(STARTUP_P)
 
     UNUSED(&Vector_To_Array);
 
-    return TRIPWIRE;
+    return TRASH;
 }
 
 
@@ -722,5 +722,5 @@ DECLARE_NATIVE(SHUTDOWN_P)
 {
     INCLUDE_PARAMS_OF_SHUTDOWN_P;
 
-    return TRIPWIRE;
+    return TRASH;
 }
