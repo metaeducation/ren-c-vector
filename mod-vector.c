@@ -515,7 +515,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
     INCLUDE_PARAMS_OF_TWEAK_P;
 
     Element* vec = Element_ARG(LOCATION);
-    Value* picker = ARG(PICKER);
+    Stable* picker = ARG(PICKER);
 
     REBINT n;
     if (Is_Integer(picker) or Is_Decimal(picker))  // #2312
@@ -534,7 +534,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
     if (n <= 0 or cast(REBLEN, n) > VAL_VECTOR_LEN_AT(vec))
         return DUAL_SIGNAL_NULL_ABSENT;  // out of range of vector data
 
-    Value* dual = ARG(DUAL);
+    Stable* dual = ARG(DUAL);
     if (Not_Lifted(dual)) {
         if (Is_Dual_Nulled_Pick_Signal(dual))
             goto handle_pick;
