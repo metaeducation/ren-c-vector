@@ -296,7 +296,7 @@ IMPLEMENT_GENERIC(EQUAL_Q, Is_Vector)
 
     Element* v1 = Element_ARG(VALUE1);
     Element* v2 = Element_ARG(VALUE2);
-    UNUSED(Bool_ARG(RELAX));
+    UNUSED(ARG(RELAX));
 
     bool non_integer1 = not VAL_VECTOR_INTEGRAL(v1);
     bool non_integer2 = not VAL_VECTOR_INTEGRAL(v2);
@@ -331,7 +331,7 @@ IMPLEMENT_GENERIC(SHUFFLE, Is_Vector)
     INCLUDE_PARAMS_OF_SHUFFLE;
 
     Element* vec = Element_ARG(SERIES);
-    bool secure = Bool_ARG(SECURE);
+    bool secure = did ARG(SECURE);
 
     REBLEN idx = VAL_VECTOR_INDEX(vec);
 
@@ -591,7 +591,7 @@ IMPLEMENT_GENERIC(COPY, Is_Vector) {
 
     Element* vec = Element_ARG(VALUE);
 
-    if (Bool_ARG(PART) or Bool_ARG(DEEP))
+    if (ARG(PART) or ARG(DEEP))
         panic (Error_Bad_Refines_Raw());
 
     require (
@@ -616,7 +616,7 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
 
     Element* vec = Element_ARG(VALUE);
     Molder* mo = Cell_Handle_Pointer(Molder, ARG(MOLDER));
-    bool form = Bool_ARG(FORM);
+    bool form = did ARG(FORM);
 
     REBLEN len = VAL_VECTOR_LEN_AT(vec);
     REBLEN n = VAL_VECTOR_INDEX(vec);
