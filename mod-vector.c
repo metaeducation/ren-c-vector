@@ -697,7 +697,7 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
 //
 //  "Startup VECTOR! Extension"
 //
-//      return: []
+//      return: ~
 //  ]
 //
 DECLARE_NATIVE(STARTUP_P)
@@ -715,7 +715,7 @@ DECLARE_NATIVE(STARTUP_P)
 //
 //  "Shutdown VECTOR! Extension"
 //
-//      return: []
+//      return: ~
 //  ]
 //
 DECLARE_NATIVE(SHUTDOWN_P)
