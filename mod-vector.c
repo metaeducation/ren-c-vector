@@ -556,7 +556,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
     if (Is_Antiform(dual))
         panic (Error_Bad_Antiform(dual));
 
-    Element* poke = Known_Element(dual);
+    Element* poke = As_Element(dual);
 
     Ensure_Mutable(VAL_VECTOR_BLOB(vec));
 
