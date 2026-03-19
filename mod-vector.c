@@ -217,7 +217,7 @@ static Option(Error*) Trap_Set_Vector_At(
 
   out_of_range:
 
-    return Cell_Error(rebValue("make warning! [",
+    return Cell_Error(rebValue("make error! [",
         set, "-[out of range for]- unspaced [", rebI(bitsize), "{-bit}]",
             rebT(sign ? "signed" : "unsigned"), "-[VECTOR! type]-",
     "]"));
@@ -423,7 +423,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
 
     bool integral = false;  // default to integer, not floating point
     if (item == tail or not Is_Word(item))
-        panic (item);
+        panic (Error_Bad_Value(item));
 
     if (Word_Id(item) == SYM_INTEGER_X)  // e_X_clamation (INTEGER!)
         integral = true;
