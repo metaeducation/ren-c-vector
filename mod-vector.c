@@ -268,12 +268,12 @@ static Array* Vector_To_Array(const Element* vec)
 {
     USED(&Vector_To_Array);
 
-    REBLEN len = Series_Len_At(vec);
+    Length len = Series_Len_At(vec);
     assert(len >= 0);
 
     Array* arr = Make_Source(len);
     Element* dest = Array_Head(arr);
-    REBLEN n;
+    Index n;
     for (n = Series_Index(vec); n < Series_Len_Head(vec); ++n, ++dest)
         Get_Vector_At(dest, vec, n);
 
@@ -475,7 +475,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
     else
         iblk = nullptr;
 
-    REBLEN index = 0;  // index offset inside returned VECTOR! is 0, see [1]
+    Index index = 0;  // index offset inside returned VECTOR! is 0, see [1]
     if (item != tail and Is_Integer(item)) {
         index = (Int32s(item, 1) - 1);
         ++item;
