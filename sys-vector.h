@@ -96,9 +96,9 @@ inline static Element* Init_Vector(
     Init_Blob(Pairing_First(paired), bin);
 
     Element* siw = Pairing_Second(paired);
-    Reset_Cell_Header_Noquote(
+    Reset_Cell_Header(
         siw,
-        FLAG_HEART(TYPE_HANDLE)
+        FLAG_HEART_AND_LIFT(HEART_HANDLE)
             | CELL_FLAG_DONT_MARK_PAYLOAD_1  // data just a flag, no GC marking
             | CELL_FLAG_DONT_MARK_PAYLOAD_2  // also a flag, no GC marking
     );
