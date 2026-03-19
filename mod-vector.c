@@ -532,11 +532,11 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
     n += VAL_VECTOR_INDEX(vec);
 
     if (n <= 0 or i_cast(REBLEN, n) > VAL_VECTOR_LEN_AT(vec))
-        return DUAL_SIGNAL_NULL_ABSENT;  // out of range of vector data
+        return NULL_OUT_SLOT_UNAVAILABLE;  // out of range of vector data
 
     Stable* dual = ARG(DUAL);
     if (Not_Lifted(dual)) {
-        if (Is_Dual_Nulled_Pick_Signal(dual))
+        if (Is_Null_Signifying_Tweak_Is_Pick(dual))
             goto handle_pick;
 
         panic (Error_Bad_Poke_Dual_Raw(dual));
@@ -547,11 +547,11 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
   handle_pick: { /////////////////////////////////////////////////////////////
 
     Get_Vector_At(OUT, vec, n - 1);
-    return DUAL_LIFTED(OUT);
+    return LIFT_OUT_FOR_DUAL_PICK;
 
 } handle_poke: {
 
-    Unliftify_Known_Stable(dual);
+    Known_Stable_Unlift_Cell(dual);
 
     if (Is_Antiform(dual))
         panic (Error_Bad_Antiform(dual));
@@ -564,7 +564,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
     if (e)
         panic (unwrap e);
 
-    return NO_WRITEBACK_NEEDED;  // all data modified through stub
+    return OKAY_OUT_NO_WRITEBACK;  // all data modified through stub
 }}
 
 
