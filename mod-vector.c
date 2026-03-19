@@ -296,7 +296,7 @@ IMPLEMENT_GENERIC(EQUAL_Q, Is_Vector)
 
     Element* v1 = Element_ARG(VALUE1);
     Element* v2 = Element_ARG(VALUE2);
-    UNUSED(ARG(RELAX));
+    UNUSED(PARAM(RELAX));
 
     bool non_integer1 = not VAL_VECTOR_INTEGRAL(v1);
     bool non_integer2 = not VAL_VECTOR_INTEGRAL(v2);
@@ -331,7 +331,7 @@ IMPLEMENT_GENERIC(SHUFFLE, Is_Vector)
     INCLUDE_PARAMS_OF_SHUFFLE;
 
     Element* vec = Element_ARG(SERIES);
-    bool secure = did ARG(SECURE);
+    bool secure = ARG(SECURE);
 
     REBLEN idx = VAL_VECTOR_INDEX(vec);
 
@@ -364,9 +364,9 @@ IMPLEMENT_GENERIC(SHUFFLE, Is_Vector)
 IMPLEMENT_GENERIC(MAKE, Is_Vector)
 {
     INCLUDE_PARAMS_OF_MAKE;
-    UNUSED(ARG(TYPE));
+    UNUSED(PARAM(TYPE));
 
-    Element* spec = Element_ARG(DEF);
+    Element* spec = ARG(DEF);
 
     if (Is_Integer(spec) and not Is_Decimal(spec)) {
         REBINT len = Int32s(spec, 0);
@@ -589,7 +589,7 @@ IMPLEMENT_GENERIC(ADDRESS_OF, Is_Vector)
 IMPLEMENT_GENERIC(COPY, Is_Vector) {
     INCLUDE_PARAMS_OF_COPY;
 
-    Element* vec = Element_ARG(VALUE);
+    Element* vec = ARG(VALUE);
 
     if (ARG(PART) or ARG(DEEP))
         panic (Error_Bad_Refines_Raw());
@@ -616,7 +616,7 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
 
     Element* vec = Element_ARG(VALUE);
     Molder* mo = Cell_Handle_Pointer(Molder, ARG(MOLDER));
-    bool form = did ARG(FORM);
+    bool form = ARG(FORM);
 
     REBLEN len = VAL_VECTOR_LEN_AT(vec);
     REBLEN n = VAL_VECTOR_INDEX(vec);
