@@ -315,10 +315,10 @@ IMPLEMENT_GENERIC(EQUAL_Q, Is_Vector)
         Get_Vector_At(temp1, v1, n + VAL_VECTOR_INDEX(v1));
         Get_Vector_At(temp2, v2, n + VAL_VECTOR_INDEX(v2));
         if (not rebUnboxLogic(CANON(EQUAL_Q), temp1, temp2))
-            return LOGIC(false);
+            return LOGIC_OUT(false);
     }
 
-    return LOGIC(true);
+    return LOGIC_OUT(true);
 }
 
 
@@ -357,7 +357,7 @@ IMPLEMENT_GENERIC(SHUFFLE, Is_Vector)
         UNUSED(e);
     }
 
-    return COPY(vec);
+    return COPY_TO_OUT(vec);
 }
 
 
@@ -381,7 +381,8 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
 
         const bool sign = true;
         const bool integral = true;
-        return Init_Vector(OUT, bin, sign, integral, bitsize);
+        Init_Vector(OUT, bin, sign, integral, bitsize);
+        return BOUNCE_OUT;
     }
 
     if (not Is_Block(spec))
@@ -498,7 +499,7 @@ IMPLEMENT_GENERIC(MAKE, Is_Vector)
             panic (unwrap e);
     }
 
-    return OUT;
+    return BOUNCE_OUT;
 }
 
 
@@ -573,7 +574,8 @@ IMPLEMENT_GENERIC(LENGTH_OF, Is_Vector)
     INCLUDE_PARAMS_OF_LENGTH_OF;
 
     Element* vec = Element_ARG(VALUE);
-    return Init_Integer(OUT, VAL_VECTOR_LEN_AT(vec));
+    Init_Integer(OUT, VAL_VECTOR_LEN_AT(vec));
+    return BOUNCE_OUT;
 }
 
 
@@ -582,7 +584,8 @@ IMPLEMENT_GENERIC(ADDRESS_OF, Is_Vector)
     INCLUDE_PARAMS_OF_ADDRESS_OF;
 
     Element* vec = Element_ARG(VALUE);
-    return Init_Integer(OUT, p_cast(intptr_t, VAL_VECTOR_HEAD(vec)));
+    Init_Integer(OUT, p_cast(intptr_t, VAL_VECTOR_HEAD(vec)));
+    return BOUNCE_OUT;
 }
 
 
@@ -600,13 +603,14 @@ IMPLEMENT_GENERIC(COPY, Is_Vector) {
         Cell_Binary(VAL_VECTOR_BLOB(vec))
     ));
 
-    return Init_Vector(
+    Init_Vector(
         OUT,
         bin,
         VAL_VECTOR_SIGN(vec),
         VAL_VECTOR_INTEGRAL(vec),
         VAL_VECTOR_BITSIZE(vec)
     );
+    return BOUNCE_OUT;
 }
 
 
@@ -688,7 +692,7 @@ IMPLEMENT_GENERIC(MOLDIFY, Is_Vector)
         Append_Codepoint(mo->strand, ']');
     }
 
-    return TRASH;
+    return TRASH_OUT;
 }
 
 
@@ -706,7 +710,7 @@ DECLARE_NATIVE(STARTUP_P)
 
     UNUSED(&Vector_To_Array);
 
-    return TRASH;
+    return TRASH_OUT;
 }
 
 
@@ -722,5 +726,5 @@ DECLARE_NATIVE(SHUTDOWN_P)
 {
     INCLUDE_PARAMS_OF_SHUTDOWN_P;
 
-    return TRASH;
+    return TRASH_OUT;
 }
