@@ -149,7 +149,7 @@ static Option(Error*) Trap_Set_Vector_At(
             i64 = VAL_INT64(set);
         else {
             assert(Is_Decimal(set));
-            i64 = cast(int32_t, VAL_DECIMAL(set));
+            i64 = u_cast(int32_t, VAL_DECIMAL(set));
         }
 
         if (sign) {
@@ -157,21 +157,21 @@ static Option(Error*) Trap_Set_Vector_At(
               case 8: {
                 if (i64 < INT8_MIN or i64 > INT8_MAX)
                     goto out_of_range;
-                int8_t i = cast(int8_t, i64);
+                int8_t i = i_cast(int8_t, i64);
                 memcpy(cast(int8_t*, data) + n, &i, sizeof(i));
                 return SUCCESS; }
 
               case 16: {
                 if (i64 < INT16_MIN or i64 > INT16_MAX)
                     goto out_of_range;
-                int16_t i = cast(int16_t, i64);
+                int16_t i = i_cast(int16_t, i64);
                 memcpy(cast(int16_t*, data) + n, &i, sizeof(i));
                 return SUCCESS; }
 
               case 32: {
                 if (i64 < INT32_MIN or i64 > INT32_MAX)
                     goto out_of_range;
-                int32_t i = cast(int32_t, i64);
+                int32_t i = i_cast(int32_t, i64);
                 memcpy(cast(int32_t*, data) + n, &i, sizeof(i));
                 return SUCCESS; }
 
@@ -531,7 +531,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
 
     n += VAL_VECTOR_INDEX(vec);
 
-    if (n <= 0 or cast(REBLEN, n) > VAL_VECTOR_LEN_AT(vec))
+    if (n <= 0 or i_cast(REBLEN, n) > VAL_VECTOR_LEN_AT(vec))
         return DUAL_SIGNAL_NULL_ABSENT;  // out of range of vector data
 
     Stable* dual = ARG(DUAL);
@@ -582,7 +582,7 @@ IMPLEMENT_GENERIC(ADDRESS_OF, Is_Vector)
     INCLUDE_PARAMS_OF_ADDRESS_OF;
 
     Element* vec = Element_ARG(VALUE);
-    return Init_Integer(OUT, i_cast(intptr_t, VAL_VECTOR_HEAD(vec)));
+    return Init_Integer(OUT, p_cast(intptr_t, VAL_VECTOR_HEAD(vec)));
 }
 
 
