@@ -149,7 +149,7 @@ static Option(Error*) Trap_Set_Vector_At(
             i64 = VAL_INT64(set);
         else {
             assert(Is_Decimal(set));
-            i64 = u_cast(int32_t, VAL_DECIMAL(set));
+            i64 = raw_cast(int32_t, VAL_DECIMAL(set));
         }
 
         if (sign) {
@@ -598,7 +598,7 @@ IMPLEMENT_GENERIC(COPY, Is_Vector) {
         panic (Error_Bad_Refines_Raw());
 
     require (
-      Binary* bin = u_downcast Copy_Flex_Core(
+      Binary* bin = raw_downcast Copy_Flex_Core(
         BASE_FLAG_MANAGED,
         Cell_Binary(VAL_VECTOR_BLOB(vec))
     ));
