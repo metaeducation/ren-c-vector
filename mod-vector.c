@@ -301,7 +301,7 @@ IMPLEMENT_GENERIC(EQUAL_Q, Is_Vector)
     bool non_integer1 = not VAL_VECTOR_INTEGRAL(v1);
     bool non_integer2 = not VAL_VECTOR_INTEGRAL(v2);
     if (non_integer1 != non_integer2)
-        return fail (Error_Not_Same_Type_Raw());  // !!! is thisnecessary?
+        return_fail (Error_Not_Same_Type_Raw());  // !!! is thisnecessary?
 
     REBLEN l1 = VAL_VECTOR_LEN_AT(v1);
     REBLEN l2 = VAL_VECTOR_LEN_AT(v2);
@@ -525,7 +525,7 @@ IMPLEMENT_GENERIC(TWEAK_P, Is_Vector)
         panic (PARAM(PICKER));
 
     if (n == 0)  // Rebol2/Red convention, 0 is bad pick
-        return fail (Error_Out_Of_Range(picker));
+        return_fail (Error_Out_Of_Range(picker));
 
     if (n < 0)
         ++n;  // Rebol/Red convention, picking -1 from tail gives last item
