@@ -1,7 +1,7 @@
 ## VECTOR! EXTENSION
 
 This is an extension containing the R3-Alpha VECTOR! datatype code, which
-has been kept compiling in Ren-C.  The key difference is that it is an
+has been kept compiling in Revolt.  The key difference is that it is an
 optional part of the build--so that a core interpreter can be built
 without VECTOR! or its support code.
 
@@ -30,5 +30,5 @@ the bytes in that buffer.
 ### MULTI-DIMENSIONAL VECTORS / MATRIX
 
 Some attempts were made by @giuliolunati to extend the R3-Alpha vector to
-multiple dimensions.  These would be much easier to implement in Ren-C.
+multiple dimensions.  These would be much easier to implement in Revolt.
 Contact him if interested.

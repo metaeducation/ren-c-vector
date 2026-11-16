@@ -2,13 +2,13 @@
 //  file: %mod-vector.c
 //  summary: "VECTOR! datatype"
 //  section: datatypes
-//  project: "Rebol 3 Interpreter and Run-time (Ren-C branch)"
-//  homepage: https://github.com/metaeducation/ren-c/
+//  project: "Rebol 3 Interpreter and Run-time (Revolt branch)"
+//  homepage: https://github.com/metaeducation/revolt/
 //
 //=////////////////////////////////////////////////////////////////////////=//
 //
 // Copyright 2012 REBOL Technologies
-// Copyright 2012-2019 Ren-C Open Source Contributors
+// Copyright 2012-2019 Revolt Open Source Contributors
 // REBOL is a trademark of REBOL Technologies
 //
 // See README.md and CREDITS.md for more information.
@@ -30,7 +30,7 @@
 #include "sys-vector.h"
 
 
-// Ren-C vectors are built on type of BLOB!.  This means that the memory
+// Revolt vectors are built on type of BLOB!.  This means that the memory
 // must be read via memcpy() in order to avoid strict aliasing violations.
 //
 static Element* Get_Vector_At(Sink(Element) out, const Cell* vec, REBLEN n)
@@ -284,7 +284,7 @@ static Array* Vector_To_Array(const Element* vec)
 }
 
 
-// !!! Comparison in R3-Alpha was an area that was not well developed.  Ren-C
+// !!! Comparison in R3-Alpha was an area that was not well developed.  Revolt
 // has EQUAL? and LESSER? and builds on that (like Ord and Eq in Haskell, or
 // sorting only on operator< and operator== in C++)
 //
